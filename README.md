@@ -40,7 +40,7 @@ You will need Docker installed on your machine. You can see how to install it on
 
 Follow these steps to set up the project:
 
-1. Install dependencies using a composer from a Laravel Sail image in Dockerhub:
+1.  Install dependencies using a composer from a Laravel Sail image in Dockerhub:
     ```bash
     docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -49,33 +49,41 @@ Follow these steps to set up the project:
     laravelsail/php83-composer:latest \
     composer install --ignore-platform-reqs
     ```
-    
-2. Create a `.env`:
+2.  Create a `.env`:
+
     ```bash
     cp .env.example .env
     ```
 
-3. Generate a api key:
+3.  Generate a api key:
+
     ```bash
     ./vendor/bin/sail artisan key:generate
     ```
 
-4. Up the Docker environment:
+4.  Up the Docker environment:
     ```bash
     ./vendor/bin/sail up
     ```
-5. Run tests (optional):
+5.  Run tests (optional):
     ```bash
     ./vendor/bin/sail artisan test
     ```
-6. Populate the database:
+6.  Populate the database:
     ```bash
     ./vendor/bin/sail artisan migrate:fresh --seed
     ```
-7. (Optional) You can create a connection in a SGBD Manager, like DBeaver or Datagrip:
-    - Create the connection with the '.env' db variables:
+7.  (Optional) You can create a connection in a SGBD Manager, like DBeaver or Datagrip: 
+
+- Create the connection with the '.env' db variables:
+
     ```
-    
+    DB_CONNECTION=pgsql
+    DB_HOST=pgsql
+    DB_PORT=5432
+    DB_DATABASE=laravel
+    DB_USERNAME=sail
+    DB_PASSWORD=password
     ```
 
 ## Example when create a HolidayPlan and recive a email
@@ -123,8 +131,6 @@ Follow these steps to set up the project:
         />
     </div>
 </html>
-
-
 
 ## Database Tables
 
