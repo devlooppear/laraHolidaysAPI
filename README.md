@@ -55,16 +55,18 @@ Follow these steps to set up the project:
     cp .env.example .env
     ```
 
-3.  Generate a api key:
+
+3.  Up the Docker environment:
+    ```bash
+    ./vendor/bin/sail up
+    ```
+
+4.  Generate a api key:
 
     ```bash
     ./vendor/bin/sail artisan key:generate
     ```
 
-4.  Up the Docker environment:
-    ```bash
-    ./vendor/bin/sail up
-    ```
 5.  Run tests (optional):
     ```bash
     ./vendor/bin/sail artisan test
