@@ -49,17 +49,33 @@ Follow these steps to set up the project:
     laravelsail/php83-composer:latest \
     composer install --ignore-platform-reqs
     ```
-2. Up the Docker environment:
+    
+2. Create a `.env`:
+    ```bash
+    cp .env.example .env
+    ```
+
+3. Generate a api key:
+    ```bash
+    ./vendor/bin/sail artisan key:generate
+    ```
+
+4. Up the Docker environment:
     ```bash
     ./vendor/bin/sail up
     ```
-3. Run tests (optional):
+5. Run tests (optional):
     ```bash
     ./vendor/bin/sail artisan test
     ```
-4. Populate the database:
+6. Populate the database:
     ```bash
     ./vendor/bin/sail artisan migrate:fresh --seed
+    ```
+7. (Optional) You can create a connection in a SGBD Manager, like DBeaver or Datagrip:
+    - Create the connection with the '.env' db variables:
+    ```
+    
     ```
 
 ## Example when create a HolidayPlan and recive a email
