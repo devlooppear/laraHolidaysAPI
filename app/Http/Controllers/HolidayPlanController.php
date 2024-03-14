@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
 
 class HolidayPlanController extends Controller
 {
@@ -49,8 +51,8 @@ class HolidayPlanController extends Controller
                 'date' => 'required|date',
                 'location' => 'required|string|max:255',
                 'user_id' => 'nullable|exists:users,id',
-                'participants' => 'nullable|array', 
-                'participants.*' => 'exists:users,id', 
+                'participants' => 'nullable|array',
+                'participants.*' => 'exists:users,id',
             ]);
 
             // Set the authenticated user as the creator of the holiday plan
@@ -107,21 +109,6 @@ class HolidayPlanController extends Controller
         }
     }
 
-    public function generatePDF($id)
-    {
-        try {
-            $holidayPlan = HolidayPlan::with('participantsGroups')->findOrFail($id);
-
-            $pdf = PDF::loadView('pdf.holiday_plan', compact('holidayPlan'));
-
-            return $pdf->stream('holiday_plan.pdf');
-        } catch (Exception $e) {
-            Log::error('Error generating PDF: ' . $e->getMessage());
-
-            return response()->json(['error' => 'Internal Server Error'], 500);
-        }
-    }
-
     /**
      * Display the specified holiday plan.
      *
@@ -142,42 +129,46 @@ class HolidayPlanController extends Controller
      * Update the specified holiday plan in storage.
      *
      * @param  Request  $request
+     * @param  string  $id
      * @return JsonResponse
      */
     public function update(Request $request, string $id): JsonResponse
     {
         try {
-            // Find the holiday plan by ID
+            // Find the holiday plan by its ID
             $holidayPlan = HolidayPlan::findOrFail($id);
 
-            // Validate the request data
+            // Validate the request data for updating the holiday plan
             $validatedData = $request->validate([
-                'title' => 'nullable|string|max:255',
-                'description' => 'nullable|string',
-                'date' => 'nullable|date',
-                'location' => 'nullable|string|max:255',
-                'user_id' => 'nullable|exists:users,id',
+                'title' => 'sometimes|string|max:255',
+                'description' => 'sometimes|string',
+                'date' => 'sometimes|date',
+                'location' => 'sometimes|string|max:255',
+                'participants' => 'nullable|array',
+                'participants.*' => 'exists:users,id',
             ]);
 
-            // Automatically set the user_id based on the authenticated user
-            $validatedData['user_id'] = auth()->user()->id;
+            // Update the holiday plan attributes if provided in the request
+            $holidayPlan->fill($validatedData);
+            $holidayPlan->save();
 
-            // Update the holiday plan with the validated data
-            $holidayPlan->update($validatedData);
+            // Update participants associated with the holiday plan
+            if (isset($validatedData['participants'])) {
+                // Remove existing participants
+                $holidayPlan->participantsGroups()->delete();
 
-            try {
-                // Log the action if the update was successful
-                HolidayPlanLog::create([
-                    'holiday_plan_id' => $id,
-                    'action' => 'update',
-                    'user_id' => auth()->user()->id,
-                ]);
-            } catch (Exception $e) {
-                Log::error("Can't log data: " . $e->getMessage());
+                // Add new participants
+                foreach ($validatedData['participants'] as $participantId) {
+                    // Create participants group with the updated holiday plan's ID and participant's ID
+                    $particiants = ParticipantsGroup::create([
+                        'holiday_plan_id' => $holidayPlan->id,
+                        'participant_id' => $participantId,
+                    ]);
+                }
             }
 
-            // Return the response with the updated holiday plan
-            return response()->json($holidayPlan);
+            // Return the updated holiday plan
+            return response()->json([$holidayPlan, $particiants]);
         } catch (ValidationException $validationException) {
             // Handle validation errors
             $errors = $validationException->errors();
@@ -186,10 +177,13 @@ class HolidayPlanController extends Controller
             Log::error('Validation errors: ' . json_encode($errors));
 
             return response()->json(['error' => 'Validation Failed', 'errors' => $errors], 422);
+        } catch (ModelNotFoundException $notFoundException) {
+            // Handle case where holiday plan is not found
+            return response()->json(['error' => 'Holiday plan not found'], 404);
         } catch (Exception $e) {
             // Handle other exceptions
             Log::error('Error updating holiday plan: ' . $e->getMessage());
-            return response()->json(['error' => 'Internal Server Error'], 500);
+            return response()->json(['error' => 'Internal Server Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -219,6 +213,21 @@ class HolidayPlanController extends Controller
         } catch (Exception $e) {
             Log::error('Error deleting holiday plan: ' . $e->getMessage());
             return response()->json(['Error deleting holiday plan: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function generatePDF($id)
+    {
+        try {
+            $holidayPlan = HolidayPlan::with('participantsGroups')->findOrFail($id);
+
+            $pdf = PDF::loadView('pdf.holiday_plan', compact('holidayPlan'));
+
+            return $pdf->stream('holiday_plan.pdf');
+        } catch (Exception $e) {
+            Log::error('Error generating PDF: ' . $e->getMessage());
+
+            return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
 }

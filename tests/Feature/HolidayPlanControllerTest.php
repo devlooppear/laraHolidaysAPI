@@ -19,41 +19,6 @@ class HolidayPlanControllerTest extends TestCase
         Passport::actingAs(User::factory()->create());
     }
 
-    private function createHolidayPlan()
-    {
-        return HolidayPlan::factory()->create();
-    }
-
-    private function getHolidayPlans()
-    {
-        return $this->getJson('/api/holiday-plans');
-    }
-
-    private function storeHolidayPlan($data)
-    {
-        return $this->postJson('/api/holiday-plans', $data);
-    }
-
-    private function showHolidayPlan($id)
-    {
-        return $this->getJson('/api/holiday-plans/' . $id);
-    }
-
-    private function updateHolidayPlan($id, $data)
-    {
-        return $this->postJson('/api/holiday-plans/' . $id, $data);
-    }
-
-    private function deleteHolidayPlan($id)
-    {
-        return $this->deleteJson('/api/holiday-plans/' . $id);
-    }
-
-    private function generatePdf($id)
-    {
-        return $this->get('/generate-pdf/' . $id);
-    }
-
     public function testIndexMethodReturnsHolidayPlans()
     {
         // Arrange
@@ -151,5 +116,40 @@ class HolidayPlanControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(404);
+    }
+
+    private function createHolidayPlan()
+    {
+        return HolidayPlan::factory()->create();
+    }
+
+    private function getHolidayPlans()
+    {
+        return $this->getJson('/api/holiday-plans');
+    }
+
+    private function storeHolidayPlan($data)
+    {
+        return $this->postJson('/api/holiday-plans', $data);
+    }
+
+    private function showHolidayPlan($id)
+    {
+        return $this->getJson('/api/holiday-plans/' . $id);
+    }
+
+    private function updateHolidayPlan($id, $data)
+    {
+        return $this->postJson('/api/holiday-plans/' . $id, $data);
+    }
+
+    private function deleteHolidayPlan($id)
+    {
+        return $this->deleteJson('/api/holiday-plans/' . $id);
+    }
+
+    private function generatePdf($id)
+    {
+        return $this->get('/generate-pdf/' . $id);
     }
 }

@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->date('date');
-            $table->string('location');
+            $table->date('date')->nullable();
+            $table->string('location')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
 

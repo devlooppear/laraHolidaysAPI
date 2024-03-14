@@ -22,26 +22,6 @@ class HolidayPlanLogControllerTest extends TestCase
         $this->user = Passport::actingAs(User::factory()->create());
     }
 
-    private function createHolidayPlanLog()
-    {
-        return HolidayPlanLog::factory()->create();
-    }
-
-    private function getHolidayPlanLogs()
-    {
-        return $this->getJson('/api/holiday-plan-logs');
-    }
-
-    private function showHolidayPlanLog($id)
-    {
-        return $this->getJson('/api/holiday-plan-logs/' . $id);
-    }
-
-    private function deleteHolidayPlanLog($id)
-    {
-        return $this->deleteJson('/api/holiday-plan-logs/' . $id);
-    }
-
     public function testIndexMethodReturnsHolidayPlanLogs()
     {
         // Arrange
@@ -87,5 +67,25 @@ class HolidayPlanLogControllerTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $this->assertDatabaseMissing('holiday_plan_logs', ['id' => $holidayPlanLog->id]);
+    }
+
+    private function createHolidayPlanLog()
+    {
+        return HolidayPlanLog::factory()->create();
+    }
+
+    private function getHolidayPlanLogs()
+    {
+        return $this->getJson('/api/holiday-plan-logs');
+    }
+
+    private function showHolidayPlanLog($id)
+    {
+        return $this->getJson('/api/holiday-plan-logs/' . $id);
+    }
+
+    private function deleteHolidayPlanLog($id)
+    {
+        return $this->deleteJson('/api/holiday-plan-logs/' . $id);
     }
 }

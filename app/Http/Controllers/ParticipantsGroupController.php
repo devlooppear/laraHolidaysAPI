@@ -16,16 +16,6 @@ class ParticipantsGroupController extends Controller
         return response()->json($participantsGroups, 200);
     }
 
-    public function show($id)
-    {
-        try {
-            $participantsGroup = ParticipantsGroup::findOrFail($id);
-            return response()->json(['data' => $participantsGroup], 200);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Participant Group not found', 'error' => $e->getMessage()], 404);
-        }
-    }
-
     public function store(Request $request)
     {
         try {
@@ -51,6 +41,16 @@ class ParticipantsGroupController extends Controller
             return response()->json(['message' => $e->getMessage(), 'errors' => $e->errors()], 422);
         } catch (Exception $e) {
             return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $participantsGroup = ParticipantsGroup::findOrFail($id);
+            return response()->json(['data' => $participantsGroup], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Participant Group not found', 'error' => $e->getMessage()], 404);
         }
     }
 
